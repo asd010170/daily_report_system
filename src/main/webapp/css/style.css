@@ -110,3 +110,7 @@ tr.row1 {
 tr.row2 {
     background-color: #ffffff;
 }
+
+select {
+    height : 30px;
+}
