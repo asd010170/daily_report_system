@@ -74,7 +74,7 @@ public class Employee {
      * 管理者権限があるかどうか（一般：0、管理者：１）
      */
     @Column(name = JpaConst.EMP_COL_ADMIN_FLAG, nullable = false)
-    private Integer adminflag;
+    private Integer adminFlag;
 
     /**
      * 登録日時
