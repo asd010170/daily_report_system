@@ -43,3 +43,13 @@
 | content | 日報の内容 | テキスト型 |
 | created_at | 登録日時 | 日時型 |
 | updated_at | 更新日時 | 日時型 |
+
+# 定数ファイル
+
+| ファイル名 | 役割 | 定数の例 | ファイルの種類 |
+| --- | --- | --- | --- |
+| AttributeConst.java | 画面の項目値等を定義する | “flush”,”maxRow”,”page” | Enumクラス |
+| ForwardConst.java | 画面遷移に関わる値を定義する | “index”,”show” | Enumクラス |
+| JpaConst.java | DB関連の項目値を定義する | “daily_report_system”,”id” | インターフェイス |
+| MessageConst.java | 出力メッセージを定義する | “登録が完了しました。” | Enumクラス |
+| PropertyConst.java | アプリケーションスコープのパラメータ名を定義する | “pepper” | Enumクラス |
