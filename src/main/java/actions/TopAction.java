@@ -1,6 +1,7 @@
 package actions;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List; //追記
 
 import javax.servlet.ServletException;
@@ -10,6 +11,7 @@ import actions.views.ReportView; //追記
 import constants.AttributeConst;
 import constants.ForwardConst;
 import constants.JpaConst;  //追記
+import services.LikedService;
 import services.ReportService;  //追記
 
 /**
@@ -40,8 +42,6 @@ public class TopAction extends ActionBase {
      */
     public void index() throws ServletException, IOException {
 
-        // 以下追記
-
         //セッションからログイン中の従業員情報を取得
         EmployeeView loginEmployee = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
 
@@ -57,7 +57,21 @@ public class TopAction extends ActionBase {
         putRequestScope(AttributeConst.PAGE, page); //ページ数
         putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
 
-        //↑ここまで追記
+        //日報Idを指定し、いいねデータの件数を取得
+        LikedService serviceL = new LikedService();
+        //全日報データの件数を取得
+        long reportsCount = service.countAll();
+        HashMap<Integer, Long> likesCountMap = new HashMap<>();
+
+        for (int i = 1; i <= reportsCount; i++) {
+        ReportView rv = service.findOne(i);
+        long likescount = serviceL.countAllRep(i);
+
+        // HashMapにキーと値を追加
+        likesCountMap.put(rv.getId(), likescount);
+        }
+
+        putRequestScope(AttributeConst.LIK_COUNT, likesCountMap);
 
         //セッションにフラッシュメッセージが設定されている場合はリクエストスコープに移し替え、セッションからは削除する
         String flush = getSessionScope(AttributeConst.FLUSH);

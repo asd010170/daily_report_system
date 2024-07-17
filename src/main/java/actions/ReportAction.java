@@ -2,16 +2,20 @@ package actions;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.servlet.ServletException;
 
 import actions.views.EmployeeView;
+import actions.views.LikedView;
 import actions.views.ReportView;
 import constants.AttributeConst;
 import constants.ForwardConst;
 import constants.JpaConst;
 import constants.MessageConst;
+import services.LikedService;
 import services.ReportService;
 
 /**
@@ -53,6 +57,20 @@ public class ReportAction extends ActionBase {
         putRequestScope(AttributeConst.REP_COUNT, reportsCount); //全ての日報データの件数
         putRequestScope(AttributeConst.PAGE, page); //ページ数
         putRequestScope(AttributeConst.MAX_ROW, JpaConst.ROW_PER_PAGE); //1ページに表示するレコードの数
+
+        //日報Idを指定し、いいねデータの件数を取得
+        LikedService serviceL = new LikedService();
+        HashMap<Integer, Long> likesCountMap = new HashMap<>();
+
+        for (int i = 1; i <= reportsCount; i++) {
+        ReportView rv = service.findOne(i);
+        long likescount = serviceL.countAllRep(i);
+
+        // HashMapにキーと値を追加
+        likesCountMap.put(rv.getId(), likescount);
+        }
+
+        putRequestScope(AttributeConst.LIK_COUNT, likesCountMap);
 
         //セッションにフラッシュメッセージが設定されている場合はリクエストスコープに移し替え、セッションからは削除する
         String flush = getSessionScope(AttributeConst.FLUSH);
@@ -149,8 +167,14 @@ public void create() throws ServletException, IOException {
  */
 public void show() throws ServletException, IOException {
 
+    ReportService serviceR = new ReportService();
+    LikedService service = new LikedService();
+
     //idを条件に日報データを取得する
-    ReportView rv = service.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+    ReportView rv = serviceR.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+    //日報Idを指定し、いいねデータの件数を取得
+    long likescount = service.countAllRep(toNumber(getRequestParam(AttributeConst.REP_ID)));
+
 
     if (rv == null) {
         //該当の日報データが存在しない場合はエラー画面を表示
@@ -159,6 +183,7 @@ public void show() throws ServletException, IOException {
     } else {
 
         putRequestScope(AttributeConst.REPORT, rv); //取得した日報データ
+        putRequestScope(AttributeConst.LIK_COUNT, likescount);
 
         //詳細画面を表示
         forward(ForwardConst.FW_REP_SHOW);
@@ -237,4 +262,67 @@ public void update() throws ServletException, IOException {
     }
 }
 
+/**
+ * いいね！を登録する
+ * @throws ServletException
+ * @throws IOException
+ */
+public void liked() throws ServletException, IOException {
+
+    ReportService serviceR = new ReportService();
+    LikedService service = new LikedService();
+
+    // セッションからログイン中の従業員情報を取得
+    EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+    // idを条件に日報データを取得する
+    ReportView rv = serviceR.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
+
+    // 既に同じ従業員が同じ日報に「いいね」しているか確認する
+    boolean hasLiked = service.hasLiked(ev.getId(), rv.getId());
+
+    if (hasLiked) {
+        // 既に「いいね」している場合、エラーメッセージを設定する
+        List<String> errors = new ArrayList<>();
+        errors.add("この投稿には既に「いいね」しています。");
+
+        // エラー情報と日報情報をリクエストスコープに設定
+        putRequestScope(AttributeConst.REPORT, rv); // 入力された日報情報
+        putRequestScope(AttributeConst.ERR, errors); // エラーのリスト
+
+        // いいねデータの件数を取得して設定
+        long likescount = service.countAllRep(toNumber(getRequestParam(AttributeConst.REP_ID)));
+        putRequestScope(AttributeConst.LIK_COUNT, likescount);
+
+        // 新規登録画面を再表示
+        forward(ForwardConst.FW_REP_SHOW);
+        return;
+    }
+
+    // いいね情報のインスタンスを作成する
+    LikedView lv = new LikedView(
+            null,
+            ev, // ログインしている従業員
+            rv,
+            null);
+
+    // いいね情報登録
+    List<String> errors = service.create(lv);
+
+    // 日報Idを指定し、いいねデータの件数を取得
+    long likescount = service.countAllRep(toNumber(getRequestParam(AttributeConst.REP_ID)));
+
+    if (errors.size() > 0) {
+        // 登録中にエラーがあった場合
+        putRequestScope(AttributeConst.REPORT, rv); // 入力された日報情報
+        putRequestScope(AttributeConst.ERR, errors); // エラーのリスト
+    } else {
+        // 登録中にエラーがなかった場合
+        putRequestScope(AttributeConst.REPORT, rv); // 取得した日報データ
+    }
+
+    putRequestScope(AttributeConst.LIK_COUNT, likescount);
+
+    // 詳細画面を表示
+    forward(ForwardConst.FW_REP_SHOW);
+}
 }

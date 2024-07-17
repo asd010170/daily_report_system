@@ -163,3 +163,13 @@ pre {
 h3 {
     font-size: larger;
 }
+
+.like_button {
+    text-align: right;
+    padding: 10px; /* オプション：ボタン周りに余白を追加 */
+}
+
+.like_button button {
+    font-size: 16px; /* オプション：ボタンのテキストのフォントサイズを変更 */
+    padding: 10px 20px; /* オプション：ボタン内の余白を追加 */
+}
