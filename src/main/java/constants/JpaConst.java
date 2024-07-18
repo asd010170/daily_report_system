@@ -89,7 +89,7 @@ public interface JpaConst {
     String Q_LIK_COUNT_BY_REPORT_DEF = "SELECT COUNT(l) FROM Liked AS l WHERE l.report.id = :" + JPQL_PARM_REPORT_ID;
     //特定日報のいいねを押したユーザーを取得する
     String Q_LIK_GET_USERS_BY_REPORT = ENTITY_LIK + ".getUsersByReport";
-    String Q_LIK_GET_USERS_BY_REPORT_DEF = "SELECT l.employee FROM Liked AS l WHERE l.report.id = :" + JPQL_PARM_REPORT_ID;
+    String Q_LIK_GET_USERS_BY_REPORT_DEF = "SELECT l.employee.id FROM Liked AS l WHERE l.report.id = :" + JPQL_PARM_REPORT_ID;
     // 従業員IDと日報IDを条件に Liked エンティティの件数をカウントする
     String Q_LIK_COUNT_BY_EMP_AND_REP = ENTITY_LIK + ".countByEmployeeAndReport";
     String Q_LIK_COUNT_BY_EMP_AND_REP_DEF = "SELECT COUNT(l) FROM Liked AS l WHERE l.employee.id = :" + JpaConst.JPQL_PARM_EMPLOYEE + " AND l.report.id = :" + JpaConst.JPQL_PARM_REPORT_ID;

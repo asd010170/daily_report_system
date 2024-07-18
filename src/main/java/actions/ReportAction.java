@@ -291,7 +291,9 @@ public void liked() throws ServletException, IOException {
 
         // いいねデータの件数を取得して設定
         long likescount = service.countAllRep(toNumber(getRequestParam(AttributeConst.REP_ID)));
+        String showWhoLiked = service.showAllRep(toNumber(getRequestParam(AttributeConst.REP_ID)));
         putRequestScope(AttributeConst.LIK_COUNT, likescount);
+        putRequestScope(AttributeConst.LIK_WHO, showWhoLiked);
 
         // 新規登録画面を再表示
         forward(ForwardConst.FW_REP_SHOW);
@@ -310,6 +312,7 @@ public void liked() throws ServletException, IOException {
 
     // 日報Idを指定し、いいねデータの件数を取得
     long likescount = service.countAllRep(toNumber(getRequestParam(AttributeConst.REP_ID)));
+    String showWhoLiked = service.showAllRep(toNumber(getRequestParam(AttributeConst.REP_ID)));
 
     if (errors.size() > 0) {
         // 登録中にエラーがあった場合
@@ -321,6 +324,7 @@ public void liked() throws ServletException, IOException {
     }
 
     putRequestScope(AttributeConst.LIK_COUNT, likescount);
+    putRequestScope(AttributeConst.LIK_WHO, showWhoLiked);
 
     // 詳細画面を表示
     forward(ForwardConst.FW_REP_SHOW);

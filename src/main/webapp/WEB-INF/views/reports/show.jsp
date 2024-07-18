@@ -56,7 +56,7 @@
                 </tr>
                 <tr>
                     <th>いいね！</th>
-                    <td><c:out value="浅田 ゆき子、小川 学" /></td>
+                    <td><c:out value="${who_liked}" /></td>
                 </tr>
             </tbody>
         </table>

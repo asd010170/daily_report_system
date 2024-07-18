@@ -2,12 +2,12 @@ package services;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
-import actions.views.EmployeeConverter;
-import actions.views.EmployeeView;
 import actions.views.LikedConverter;
 import actions.views.LikedView;
 import constants.JpaConst;
+import models.Employee;
 import models.Liked;
 import models.validators.LikedValidator;
 
@@ -15,20 +15,6 @@ import models.validators.LikedValidator;
  * 日報テーブルの操作に関わる処理を行うクラス
  */
 public class LikedService extends ServiceBase {
-
-    /**
-     * 指定した従業員が作成した日報データの件数を取得し、返却する
-     * @param employee
-     * @return 日報データの件数
-     */
-    public long countAllMine(EmployeeView employee) {
-
-        long count = (long) em.createNamedQuery(JpaConst.Q_LIK_GET_USERS_BY_REPORT, Long.class)
-                .setParameter(JpaConst.JPQL_PARM_EMPLOYEE, EmployeeConverter.toModel(employee))
-                .getSingleResult();
-
-        return count;
-    }
 
     /**
      * 指定した日報がいいねされたデータの件数を取得し、返却する
@@ -42,6 +28,30 @@ public class LikedService extends ServiceBase {
                 .getSingleResult();
 
         return count;
+    }
+
+    /**
+     * 指定した日報がいいねされた従業員を取得し、返却する
+     * @param reportId
+     * @return いいねを押した従業員
+     */
+    public String showAllRep(int reportId) {
+     // 名前付きクエリの返り値の型を Employee に変更
+        List<Integer> employeeIds = em.createNamedQuery(JpaConst.Q_LIK_GET_USERS_BY_REPORT, Integer.class)
+                .setParameter(JpaConst.JPQL_PARM_REPORT_ID, reportId)
+                .getResultList();
+
+     // 従業員IDを基に従業員エンティティのリストを取得
+        List<Employee> employees = employeeIds.stream()
+                .map(id -> em.find(Employee.class, id))
+                .collect(Collectors.toList());
+
+     // 結果を String に変換
+        String showEmployee = employees.stream()
+                .map(Employee::getName) // Employee の名前を取得
+                .collect(Collectors.joining(", ")); // カンマ区切りで連結
+
+        return showEmployee;
     }
 
     /**
