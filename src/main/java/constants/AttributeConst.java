@@ -53,7 +53,13 @@ public enum AttributeConst {
 
     // いいね管理
     LIK_COUNT("likes_count"),
-    LIK_WHO("who_liked");
+    LIK_WHO("who_liked"),
+
+    // フォローシップ管理
+    FEE_COUNT("fee_count"),
+    FER_COUNT("fer_count"),
+    FEE_WHO("fee_who"),
+    FER_WHO("fer_who");
 
     private final String text;
     private final Integer i;

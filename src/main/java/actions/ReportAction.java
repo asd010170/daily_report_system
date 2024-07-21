@@ -9,12 +9,15 @@ import java.util.List;
 import javax.servlet.ServletException;
 
 import actions.views.EmployeeView;
+import actions.views.FollowshipView;
 import actions.views.LikedView;
 import actions.views.ReportView;
 import constants.AttributeConst;
 import constants.ForwardConst;
 import constants.JpaConst;
 import constants.MessageConst;
+import services.EmployeeService;
+import services.FollowshipService;
 import services.LikedService;
 import services.ReportService;
 
@@ -174,6 +177,7 @@ public void show() throws ServletException, IOException {
     ReportView rv = serviceR.findOne(toNumber(getRequestParam(AttributeConst.REP_ID)));
     //日報Idを指定し、いいねデータの件数を取得
     long likescount = service.countAllRep(toNumber(getRequestParam(AttributeConst.REP_ID)));
+    String showWhoLiked = service.showAllRep(toNumber(getRequestParam(AttributeConst.REP_ID)));
 
 
     if (rv == null) {
@@ -184,6 +188,7 @@ public void show() throws ServletException, IOException {
 
         putRequestScope(AttributeConst.REPORT, rv); //取得した日報データ
         putRequestScope(AttributeConst.LIK_COUNT, likescount);
+        putRequestScope(AttributeConst.LIK_WHO, showWhoLiked);
 
         //詳細画面を表示
         forward(ForwardConst.FW_REP_SHOW);
@@ -328,5 +333,129 @@ public void liked() throws ServletException, IOException {
 
     // 詳細画面を表示
     forward(ForwardConst.FW_REP_SHOW);
+}
+
+/**
+ * MYPAGE画面を表示する
+ * @throws ServletException
+ * @throws IOException
+ */
+public void mypage() throws ServletException, IOException {
+
+        EmployeeService serviceE = new EmployeeService();
+        ReportService serviceR = new ReportService();
+        FollowshipService service = new FollowshipService();
+
+        //idを条件に従業員データを取得する
+        EmployeeView ev = serviceE.findOne(toNumber(getRequestParam(AttributeConst.EMP_ID)));
+
+        if (ev == null) {
+
+            //データが取得できなかった、または論理削除されている場合はエラー画面を表示
+            forward(ForwardConst.FW_ERR_UNKNOWN);
+            return;
+        }
+
+        putRequestScope(AttributeConst.EMPLOYEE, ev); //取得した従業員情報
+
+        long ReportsCount = serviceR.countAllMine(ev);
+        putRequestScope(AttributeConst.REP_COUNT, ReportsCount);
+
+        // フォローシップデータの件数を取得して設定
+        long followeecount = service.countAllFee(toNumber(getRequestParam(AttributeConst.REP_ID)));
+        long followercount = service.countAllFer(toNumber(getRequestParam(AttributeConst.REP_ID)));
+        String showWhoFee = service.showAllFee(toNumber(getRequestParam(AttributeConst.REP_ID)));
+        String showWhoFer = service.showAllFer(toNumber(getRequestParam(AttributeConst.REP_ID)));
+        putRequestScope(AttributeConst.FEE_COUNT, followeecount);
+        putRequestScope(AttributeConst.FER_COUNT, followercount);
+        putRequestScope(AttributeConst.FEE_WHO, showWhoFee);
+        putRequestScope(AttributeConst.FER_WHO, showWhoFer);
+
+        //MYPAGE画面を表示
+        forward(ForwardConst.FW_MY_PAGE);
+    }
+
+/**
+ * フォローを登録する
+ * @throws ServletException
+ * @throws IOException
+ */
+public void follow() throws ServletException, IOException {
+
+    EmployeeService serviceE = new EmployeeService();
+    ReportService serviceR = new ReportService();
+    FollowshipService service = new FollowshipService();
+
+    // セッションからログイン中の従業員情報を取得
+    EmployeeView ev = (EmployeeView) getSessionScope(AttributeConst.LOGIN_EMP);
+    // idを条件に日報データを取得する
+    EmployeeView erv = serviceE.findOne(toNumber(getRequestParam(AttributeConst.EMP_ID)));
+
+    // 既に同じ従業員が同じ日報に「いいね」しているか確認する
+    boolean hasFollowed = service.hasFollowed(ev.getId(), erv.getId());
+
+    if (hasFollowed) {
+        // 既にフォローされている場合、エラーメッセージを設定する
+        List<String> errors = new ArrayList<>();
+        errors.add("既にフォローされています。");
+
+        // エラー情報と日報情報をリクエストスコープに設定
+        putRequestScope(AttributeConst.EMPLOYEE, erv); // 入力された日報情報
+        putRequestScope(AttributeConst.ERR, errors); // エラーのリスト
+
+        long ReportsCount = serviceR.countAllMine(ev);
+        putRequestScope(AttributeConst.REP_COUNT, ReportsCount);
+
+        // フォローシップデータの件数を取得して設定
+        long followeecount = service.countAllFee(toNumber(getRequestParam(AttributeConst.REP_ID)));
+        long followercount = service.countAllFer(toNumber(getRequestParam(AttributeConst.REP_ID)));
+        String showWhoFee = service.showAllFee(toNumber(getRequestParam(AttributeConst.REP_ID)));
+        String showWhoFer = service.showAllFer(toNumber(getRequestParam(AttributeConst.REP_ID)));
+        putRequestScope(AttributeConst.FEE_COUNT, followeecount);
+        putRequestScope(AttributeConst.FER_COUNT, followercount);
+        putRequestScope(AttributeConst.FEE_WHO, showWhoFee);
+        putRequestScope(AttributeConst.FER_WHO, showWhoFer);
+
+        // 新規登録画面を再表示
+        forward(ForwardConst.FW_MY_PAGE);
+        return;
+    }
+
+    // いいね情報のインスタンスを作成する
+    FollowshipView lv = new FollowshipView(
+            null,
+            ev, // ログインしている従業員
+            erv,
+            null,
+            null);
+
+    // いいね情報登録
+    List<String> errors = service.create(lv);
+
+    // フォローシップデータの件数を取得して設定
+    long followeecount = service.countAllFee(toNumber(getRequestParam(AttributeConst.REP_ID)));
+    long followercount = service.countAllFer(toNumber(getRequestParam(AttributeConst.REP_ID)));
+    String showWhoFee = service.showAllFee(toNumber(getRequestParam(AttributeConst.REP_ID)));
+    String showWhoFer = service.showAllFer(toNumber(getRequestParam(AttributeConst.REP_ID)));
+
+    if (errors.size() > 0) {
+        // 登録中にエラーがあった場合
+        putRequestScope(AttributeConst.EMPLOYEE, erv);
+        putRequestScope(AttributeConst.ERR, errors);
+    } else {
+        // 登録中にエラーがなかった場合
+        putRequestScope(AttributeConst.EMPLOYEE, erv);
+    }
+
+    long ReportsCount = serviceR.countAllMine(ev);
+    putRequestScope(AttributeConst.REP_COUNT, ReportsCount);
+
+    putRequestScope(AttributeConst.FEE_COUNT, followeecount);
+    putRequestScope(AttributeConst.FER_COUNT, followercount);
+    putRequestScope(AttributeConst.FEE_WHO, showWhoFee);
+    putRequestScope(AttributeConst.FER_WHO, showWhoFer);
+
+    // 詳細画面を表示
+    forward(ForwardConst.FW_MY_PAGE);
 }
 }

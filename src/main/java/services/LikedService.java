@@ -8,7 +8,6 @@ import actions.views.LikedConverter;
 import actions.views.LikedView;
 import constants.JpaConst;
 import models.Employee;
-import models.Liked;
 import models.validators.LikedValidator;
 
 /**
@@ -55,25 +54,6 @@ public class LikedService extends ServiceBase {
     }
 
     /**
-     * いいねテーブルのデータの件数を取得し、返却する
-     * @return データの件数
-     */
-    public long countAll() {
-        long likes_count = (long) em.createNamedQuery(JpaConst.Q_LIK_COUNT_BY_REPORT, Long.class)
-                .getSingleResult();
-        return likes_count;
-    }
-
-    /**
-     * idを条件に取得したデータをLikedViewのインスタンスで返却する
-     * @param id
-     * @return 取得データのインスタンス
-     */
-    public LikedView findOne(int id) {
-        return LikedConverter.toView(findOneInternal(id));
-    }
-
-    /**
      * 画面から入力された登録内容を元にデータを1件作成し、いいねテーブルに登録する
      * @param lv 日報の登録内容
      * @return バリデーションで発生したエラーのリスト
@@ -91,37 +71,6 @@ public class LikedService extends ServiceBase {
     }
 
     /**
-     * 画面から入力された登録内容を元に、いいねデータを更新する
-     * @param lv 日報の更新内容
-     * @return バリデーションで発生したエラーのリスト
-     */
-    public List<String> update(LikedView lv) {
-
-        //バリデーションを行う
-        List<String> errors = LikedValidator.validate(lv);
-
-        if (errors.size() == 0) {
-
-            //更新日時を現在時刻に設定
-            LocalDateTime ldt = LocalDateTime.now();
-
-            updateInternal(lv);
-        }
-
-        //バリデーションで発生したエラーを返却（エラーがなければ0件の空リスト）
-        return errors;
-    }
-
-    /**
-     * idを条件にデータを1件取得する
-     * @param id
-     * @return 取得データのインスタンス
-     */
-    private Liked findOneInternal(int id) {
-        return em.find(Liked.class, id);
-    }
-
-    /**
      * いいねデータを1件登録する
      * @param lv いいねデータ
      */
@@ -129,19 +78,6 @@ public class LikedService extends ServiceBase {
 
         em.getTransaction().begin();
         em.persist(LikedConverter.toModel(lv));
-        em.getTransaction().commit();
-
-    }
-
-    /**
-     * いいねデータを更新する
-     * @param lv いいねデータ
-     */
-    private void updateInternal(LikedView lv) {
-
-        em.getTransaction().begin();
-        Liked l = findOneInternal(lv.getId());
-        LikedConverter.copyViewToModel(l, lv);
         em.getTransaction().commit();
 
     }

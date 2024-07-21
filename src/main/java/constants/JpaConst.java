@@ -48,16 +48,28 @@ public interface JpaConst {
     String LIK_COL_REP = "report_id"; //日報id
     String LIK_COL_CREATED_AT = "created_at"; //登録日時
 
+    //フォローシップテーブル
+    String TABLE_FOL = "followship"; //テーブル名
+    //いいねテーブルカラム
+    String FOL_COL_ID = "id"; //id
+    String FOL_COL_FEE = "followee_id"; //日報を作成した従業員のid
+    String FOL_COL_FER = "follower_id"; //日報id
+    String FOL_COL_CREATED_AT = "created_at"; //登録日時
+    String FOL_COL_UPDATED_AT = "updated_at"; //更新日時
+
     //Entity名
     String ENTITY_EMP = "employee"; //従業員
     String ENTITY_REP = "report"; //日報
-    String ENTITY_LIK = "liked"; //日報
+    String ENTITY_LIK = "liked"; //いいね
+    String ENTITY_FOL = "followship"; // フォローシップ
 
     //JPQL内パラメータ
     String JPQL_PARM_CODE = "code"; //社員番号
     String JPQL_PARM_PASSWORD = "password"; //パスワード
     String JPQL_PARM_EMPLOYEE = "employee"; //従業員
     String JPQL_PARM_REPORT_ID = "reportId"; // 日報ID
+    String JPQL_PARM_FOLLOWEE_ID = "followeeId"; // 日報ID
+    String JPQL_PARM_FOLLOWER_ID = "followerId"; // 日報ID
 
     //NamedQueryの nameとquery
     //全ての従業員をidの降順に取得する
@@ -92,5 +104,20 @@ public interface JpaConst {
     String Q_LIK_GET_USERS_BY_REPORT_DEF = "SELECT l.employee.id FROM Liked AS l WHERE l.report.id = :" + JPQL_PARM_REPORT_ID;
     // 従業員IDと日報IDを条件に Liked エンティティの件数をカウントする
     String Q_LIK_COUNT_BY_EMP_AND_REP = ENTITY_LIK + ".countByEmployeeAndReport";
-    String Q_LIK_COUNT_BY_EMP_AND_REP_DEF = "SELECT COUNT(l) FROM Liked AS l WHERE l.employee.id = :" + JpaConst.JPQL_PARM_EMPLOYEE + " AND l.report.id = :" + JpaConst.JPQL_PARM_REPORT_ID;
+    String Q_LIK_COUNT_BY_EMP_AND_REP_DEF = "SELECT COUNT(l) FROM Liked AS l WHERE l.employee.id = :" + JPQL_PARM_EMPLOYEE + " AND l.report.id = :" + JPQL_PARM_REPORT_ID;
+    //指定した従業員のフォロイー数を取得する
+    String Q_FOL_COUNT_ALL_FEE = ENTITY_FOL + ".countAllFee";
+    String Q_FOL_COUNT_ALL_FEE_DEF = "SELECT COUNT(f) FROM Followship AS f WHERE f.followee.id = :" + JPQL_PARM_FOLLOWEE_ID;
+    //指定した従業員のフォロワー数を取得する
+    String Q_FOL_COUNT_ALL_FER = ENTITY_FOL + ".countAllFer";
+    String Q_FOL_COUNT_ALL_FER_DEF = "SELECT COUNT(f) FROM Followship AS f WHERE f.follower.id = :" + JPQL_PARM_FOLLOWER_ID;
+    //フォロイーユーザーを取得する
+    String Q_FOL_GET_USERS_BY_FEE = ENTITY_FOL + ".getUsersByFee";
+    String Q_FOL_GET_USERS_BY_FEE_DEF = "SELECT f.follower.id FROM Followship AS f WHERE f.followee.id = :" + JPQL_PARM_FOLLOWEE_ID;
+    //フォロワーユーザーを取得する
+    String Q_FOL_GET_USERS_BY_FER = ENTITY_FOL + ".getUsersByFer";
+    String Q_FOL_GET_USERS_BY_FER_DEF = "SELECT f.followee.id FROM Followship AS f WHERE f.follower.id = :" + JPQL_PARM_FOLLOWER_ID;
+    // フォロイーIDとフォロワーIDを条件に Followship エンティティの件数をカウントする
+    String Q_FOL_COUNT_BY_FEE_AND_FER = ENTITY_FOL + ".countByFeeAndFer";
+    String Q_FOL_COUNT_BY_FEE_AND_FER_DEF = "SELECT COUNT(f) FROM Followship AS f WHERE f.followee.id = :" + JPQL_PARM_FOLLOWEE_ID + " AND f.follower.id = :" + JPQL_PARM_FOLLOWER_ID;
 }
