@@ -39,7 +39,10 @@ import lombok.Setter;
             query = JpaConst.Q_FOL_GET_USERS_BY_FER_DEF),
     @NamedQuery(
             name = JpaConst.Q_FOL_COUNT_BY_FEE_AND_FER,
-            query = JpaConst.Q_FOL_COUNT_BY_FEE_AND_FER_DEF)
+            query = JpaConst.Q_FOL_COUNT_BY_FEE_AND_FER_DEF),
+    @NamedQuery(
+            name = JpaConst.Q_FOL_GET_BY_FEE_AND_FER,
+            query = JpaConst.Q_FOL_GET_BY_FEE_AND_FER_DEF)
 })
 
 @Getter //全てのクラスフィールドについてgetterを自動生成する(Lombok)

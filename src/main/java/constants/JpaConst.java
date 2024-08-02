@@ -96,6 +96,9 @@ public interface JpaConst {
     //指定した従業員が作成した日報の件数を取得する
     String Q_REP_COUNT_ALL_MINE = ENTITY_REP + ".countAllMine";
     String Q_REP_COUNT_ALL_MINE_DEF = "SELECT COUNT(r) FROM Report AS r WHERE r.employee = :" + JPQL_PARM_EMPLOYEE;
+    //指定した従業員が作成した最新日報を取得する
+    String Q_REP_GET_LATEST = ENTITY_REP + ".getLatest";
+    String Q_REP_GET_LATEST_DEF = "SELECT r FROM Report AS r WHERE r.employee = :" + JPQL_PARM_EMPLOYEE + " ORDER BY r.reportDate DESC";
     //特定日報のいいね件数を取得する
     String Q_LIK_COUNT_BY_REPORT = ENTITY_LIK + ".countByReport";
     String Q_LIK_COUNT_BY_REPORT_DEF = "SELECT COUNT(l) FROM Liked AS l WHERE l.report.id = :" + JPQL_PARM_REPORT_ID;
@@ -120,4 +123,7 @@ public interface JpaConst {
     // フォロイーIDとフォロワーIDを条件に Followship エンティティの件数をカウントする
     String Q_FOL_COUNT_BY_FEE_AND_FER = ENTITY_FOL + ".countByFeeAndFer";
     String Q_FOL_COUNT_BY_FEE_AND_FER_DEF = "SELECT COUNT(f) FROM Followship AS f WHERE f.followee.id = :" + JPQL_PARM_FOLLOWEE_ID + " AND f.follower.id = :" + JPQL_PARM_FOLLOWER_ID;
+    // フォロイーIDとフォロワーIDを条件に Followship エンティティを取得する
+    String Q_FOL_GET_BY_FEE_AND_FER = ENTITY_FOL + ".getByFeeAndFer";
+    String Q_FOL_GET_BY_FEE_AND_FER_DEF = "SELECT f FROM Followship AS f WHERE f.followee.id = :" + JPQL_PARM_FOLLOWEE_ID + " AND f.follower.id = :" + JPQL_PARM_FOLLOWER_ID;
 }

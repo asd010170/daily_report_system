@@ -31,6 +31,7 @@ public enum ForwardConst {
     CMD_LIKED("liked"),
     CMD_MY_PAGE("mypage"),
     CMD_FOLLOW("follow"),
+    CMD_FOLLOWED("followed"),
 
     //jsp
     FW_ERR_UNKNOWN("error/unknown"),
@@ -44,7 +45,8 @@ public enum ForwardConst {
     FW_REP_SHOW("reports/show"),
     FW_REP_NEW("reports/new"),
     FW_REP_EDIT("reports/edit"),
-    FW_MY_PAGE("mypage/mypage");
+    FW_MY_PAGE("mypage/mypage"),
+    FW_FOL_INDEX("followship/index");
 
     /**
      * 文字列

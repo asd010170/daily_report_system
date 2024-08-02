@@ -2,12 +2,14 @@ package services;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import actions.views.EmployeeConverter;
 import actions.views.EmployeeView;
 import actions.views.ReportConverter;
 import actions.views.ReportView;
 import constants.JpaConst;
+import models.Employee;
 import models.Report;
 import models.validators.ReportValidator;
 
@@ -77,6 +79,27 @@ public class ReportService extends ServiceBase {
      */
     public ReportView findOne(int id) {
         return ReportConverter.toView(findOneInternal(id));
+    }
+
+    /**
+     * 指定した従業員が作成した最新日報をReportViewのリストで返却する
+     * @param employees
+     * @return 取得データのReportViewインスタンスのリスト
+     */
+    public List<ReportView> findLatestOne(List<EmployeeView> employees) {
+        return employees.stream()
+                .map(employee -> {
+                    // EmployeeView から Employee に変換
+                    Employee employeeModel = EmployeeConverter.toModel(employee);
+
+                    Report report = em.createNamedQuery(JpaConst.Q_REP_GET_LATEST, Report.class)
+                            .setParameter(JpaConst.JPQL_PARM_EMPLOYEE, employeeModel)
+                            .setMaxResults(1)
+                            .getSingleResult();
+
+                    return ReportConverter.toView(report);
+                })
+                .collect(Collectors.toList());
     }
 
     /**

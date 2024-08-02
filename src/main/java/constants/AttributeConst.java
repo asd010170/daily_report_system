@@ -17,6 +17,7 @@ public enum AttributeConst {
     // 入力フォーム共通
     TOKEN("_token"),
     ERR("errors"),
+    HASFOLLOWED("hasfollowed"),
 
     // ログイン中の従業員
     LOGIN_EMP("login_employee"),
@@ -56,6 +57,8 @@ public enum AttributeConst {
     LIK_WHO("who_liked"),
 
     // フォローシップ管理
+    FOLLOWEE("followee"),
+    FOLLOWER("follower"),
     FEE_COUNT("fee_count"),
     FER_COUNT("fer_count"),
     FEE_WHO("fee_who"),

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import actions.views.EmployeeView;
 import actions.views.FollowshipConverter;
 import actions.views.FollowshipView;
 import constants.JpaConst;
@@ -93,6 +94,30 @@ public class FollowshipService extends ServiceBase {
     }
 
     /**
+     * フォロイーを取得し、返却する
+     * @param followeeId フォロワーID
+     * @return フォローを押された従業員のリスト
+     */
+    public List<EmployeeView> showAllFeeE(int followeeId) {
+        // 名前付きクエリの返り値の型を Integer に変更
+        List<Integer> employeeIds = em.createNamedQuery(JpaConst.Q_FOL_GET_USERS_BY_FEE, Integer.class)
+                .setParameter(JpaConst.JPQL_PARM_FOLLOWEE_ID, followeeId)
+                .getResultList();
+
+        // 従業員IDを基に従業員エンティティのリストを取得
+        List<Employee> employees = employeeIds.stream()
+                .map(id -> em.find(Employee.class, id))
+                .collect(Collectors.toList());
+
+        // Employee -> EmployeeView への変換メソッドを利用して変換
+        List<EmployeeView> employeeViews = employees.stream()
+                .map(this::toEmployeeView)
+                .collect(Collectors.toList());
+
+        return employeeViews;
+    }
+
+    /**
      * idを条件に取得したデータをEmployeeViewのインスタンスで返却する
      * @param id
      * @return 取得データのインスタンス
@@ -119,6 +144,26 @@ public class FollowshipService extends ServiceBase {
         //バリデーションで発生したエラーを返却（エラーがなければ0件の空リスト）
         return errors;
     }
+
+    /**
+     * フォロー情報を削除する
+     * @param followerId フォロワーのID
+     * @param followeeId フォロイーのID
+     */
+    public void delete(int followeeId, int followerId) {
+            // フォロー情報を検索
+            Followship followship = em.createNamedQuery(JpaConst.Q_FOL_GET_BY_FEE_AND_FER, Followship.class)
+                                      .setParameter(JpaConst.JPQL_PARM_FOLLOWEE_ID, followeeId)
+                                      .setParameter(JpaConst.JPQL_PARM_FOLLOWER_ID, followerId)
+                                      .getSingleResult();
+
+            // トランザクションの開始
+            em.getTransaction().begin();
+            // フォロー情報の削除
+            em.remove(followship);
+            // トランザクションのコミット
+            em.getTransaction().commit();
+}
 
     /**
      * idを条件にデータを1件取得し、Employeeのインスタンスで返却する
@@ -166,6 +211,15 @@ public class FollowshipService extends ServiceBase {
                 .getSingleResult();
 
         return count > 0;
+    }
+
+ // Employee -> EmployeeView の変換メソッド
+    private EmployeeView toEmployeeView(Employee employee) {
+        EmployeeView view = new EmployeeView();
+        view.setId(employee.getId());
+        view.setName(employee.getName());
+        // 他の必要なフィールドを設定
+        return view;
     }
 
 }

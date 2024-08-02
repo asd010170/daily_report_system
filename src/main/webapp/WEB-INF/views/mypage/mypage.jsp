@@ -11,15 +11,15 @@
 <c:import url="/WEB-INF/views/layout/app.jsp">
     <c:param name="content">
 
-    <c:if test="${errors != null}">
+        <h2>マイページ 詳細ページ</h2>
+
+            <c:if test="${errors != null}">
         <div id="flush_error">
         <c:forEach var="error" items="${errors}">
             <c:out value="${error}" /><br />
         </c:forEach>
         </div>
          </c:if>
-
-        <h2>マイページ 詳細ページ</h2>
 
         <table>
             <tbody>
@@ -55,7 +55,14 @@
             <input type="hidden" name="${AttributeConst.LOGIN_EMP.getValue()}" value="${sessionScope.login_employee.id}" />
             <input type="hidden" name="${AttributeConst.EMP_ID.getValue()}" value="${employee.id}" />
                 <div class="follow_button">
+                    <c:choose>
+                        <c:when test="${hasfollowed != true}">
+                    <button type="submit">フォロー済み</button>
+                    </c:when>
+                        <c:otherwise>
                     <button type="submit">フォロー</button>
+                </c:otherwise>
+            </c:choose>
                 </div>
         </form>
         </c:if>
